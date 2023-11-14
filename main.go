@@ -1,3 +1,11 @@
+//
+// Name: Jimmy Patel
+// Net id: jpate289
+// Homework 4: GO
+// Description: This Go program manages a password vault where users can store, retrieve, and manipulate website credentials.
+// 				It offers a command-line interface to list, add, and remove entries, and stores data in a file for persistence.
+//
+
 package main
 
 import (
@@ -7,8 +15,6 @@ import (
 	"strings"
 	"text/tabwriter"
 )
-
-// Global variables are allowed (and encouraged) for this project.
 
 // Entry represents a single user's credentials for a site.
 type Entry struct {
@@ -22,33 +28,25 @@ type EntrySlice []Entry
 // Global passwordMap to store the site to EntrySlice mapping.
 var passwordMap map[string]EntrySlice
 
-// _______________________________________________________________________
-// initialize before main()
-// _______________________________________________________________________
+// Initialize the passwordMap before the main function.
 func init() {
 	passwordMap = make(map[string]EntrySlice)
-	pmRead()
+	pmRead() // Load data from the file during initialization.
 }
 
-// _______________________________________________________________________
-// find the matching entry slice
-// _______________________________________________________________________
+// findEntrySlice finds the EntrySlice associated with a site.
 func findEntrySlice(site string) (EntrySlice, bool) {
 	entries, exists := passwordMap[site]
 	return entries, exists
 }
 
-// _______________________________________________________________________
-// set the entrySlice for site
-// _______________________________________________________________________
+// setEntrySlice sets the EntrySlice for a site and saves changes to the file.
 func setEntrySlice(site string, entrySlice EntrySlice) {
 	passwordMap[site] = entrySlice
-	pmWrite() // Save changes to the file after updating the entry slice.
+	pmWrite() // Save changes to the file after updating the EntrySlice.
 }
 
-// _______________________________________________________________________
-// find
-// _______________________________________________________________________
+// find finds a user in an EntrySlice and returns its index.
 func find(user string, entrySlice EntrySlice) (int, bool) {
 	for i, entry := range entrySlice {
 		if entry.User == user {
@@ -58,9 +56,7 @@ func find(user string, entrySlice EntrySlice) (int, bool) {
 	return -1, false // Return -1 if the user is not found.
 }
 
-// _______________________________________________________________________
-// print the list in columns
-// _______________________________________________________________________
+// pmList prints the list of entries in columns.
 func pmList() {
 	w := tabwriter.NewWriter(os.Stdout, 8, 8, 1, ' ', 0)
 	for site, entries := range passwordMap {
@@ -71,11 +67,7 @@ func pmList() {
 	w.Flush()
 }
 
-// _______________________________________________________________________
-//
-//	add an entry if the site, user is not already found
-//
-// _______________________________________________________________________
+// pmAdd adds a new entry if the site and user are not already found.
 func pmAdd(site, user, password string) {
 	entrySlice, exists := findEntrySlice(site)
 	if exists {
@@ -87,9 +79,7 @@ func pmAdd(site, user, password string) {
 	setEntrySlice(site, append(entrySlice, Entry{User: user, Password: password}))
 }
 
-// _______________________________________________________________________
-// remove by site and user
-// _______________________________________________________________________
+// pmRemove removes an entry by site and user.
 func pmRemove(site, user string) {
 	entrySlice, exists := findEntrySlice(site)
 	if !exists {
@@ -103,13 +93,11 @@ func pmRemove(site, user string) {
 		return
 	}
 
-	// Remove the entry at index userIndex for site.
+	// Remove the entry at index userIndex for the site.
 	setEntrySlice(site, append(entrySlice[:userIndex], entrySlice[userIndex+1:]...))
 }
 
-// _______________________________________________________________________
-// remove the whole site if there is a single user at that site
-// _______________________________________________________________________
+// pmRemoveSite removes the entire site if there is a single user at that site.
 func pmRemoveSite(site string) {
 	entrySlice, exists := findEntrySlice(site)
 	if !exists {
@@ -126,9 +114,7 @@ func pmRemoveSite(site string) {
 	pmWrite() // Save changes to the file after removing the site.
 }
 
-// _______________________________________________________________________
-// read the passwordVault
-// _______________________________________________________________________
+// pmRead reads data from the "passwordVault" file and populates the passwordMap.
 func pmRead() {
 	file, err := os.Open("passwordVault")
 	if err != nil {
@@ -157,9 +143,7 @@ func pmRead() {
 	}
 }
 
-// _______________________________________________________________________
-// write the passwordVault
-// _______________________________________________________________________
+// pmWrite writes data from passwordMap to the "passwordVault" file.
 func pmWrite() {
 	file, err := os.OpenFile("passwordVault", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
@@ -178,18 +162,7 @@ func pmWrite() {
 	}
 }
 
-// _______________________________________________________________________
-// do forever loop reading the following commands
-//
-//	  l
-//	  a s u p
-//	  r s
-//	  r s u
-//	  x
-//	where l,a,r,x are list, add, remove, and exit
-//	and s,u,p are site, user, and password
-//
-// _______________________________________________________________________
+// Main loop to read and process commands.
 func loop() {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
@@ -230,11 +203,7 @@ func loop() {
 	}
 }
 
-// _______________________________________________________________________
-//
-//	let her rip
-//
-// _______________________________________________________________________
+// The main function starts the program by entering the command loop.
 func main() {
 	loop()
 }
