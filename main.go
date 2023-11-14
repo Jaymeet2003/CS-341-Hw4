@@ -65,7 +65,7 @@ func pmList() {
 	w := tabwriter.NewWriter(os.Stdout, 8, 8, 1, ' ', 0)
 	for site, entries := range passwordMap {
 		for _, entry := range entries {
-			fmt.Fprintf(w, "%s\t%s\t%s\t\n", site, entry.User, entry.Password)
+			fmt.Fprintf(w, "%40s %20s %20s\n", site, entry.User, entry.Password)
 		}
 	}
 	w.Flush()
@@ -170,7 +170,7 @@ func pmWrite() {
 
 	for site, entries := range passwordMap {
 		for _, entry := range entries {
-			if _, err := fmt.Fprintf(file, "%s %s %s\n", site, entry.User, entry.Password); err != nil {
+			if _, err := fmt.Fprintf(file, "%40s %20s %20s\n", site, entry.User, entry.Password); err != nil {
 				fmt.Println("Error writing to file:", err)
 				os.Exit(1)
 			}
